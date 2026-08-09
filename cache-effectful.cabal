@@ -56,12 +56,19 @@ library
   import: common-extensions
   import: common-ghc-options
   hs-source-dirs: src
-  exposed-modules: Effectful.Cache
+  exposed-modules:
+    Effectful.Cache,
+    Effectful.Cache.Memcached,
+
   build-depends:
     base <=4.23,
+    bytestring,
     cache,
+    cereal ^>=0.5 && <1,
     effectful-core >=2.2,
     hashable,
+    memcache,
+    network,
 
 test-suite cache-effectful-test
   import: common-extensions
@@ -77,5 +84,21 @@ test-suite cache-effectful-test
     cache-effectful,
     effectful-core,
     hashable,
+    tasty,
+    tasty-hunit,
+
+test-suite cache-effectful-memcached-test
+  import: common-extensions
+  import: common-ghc-options
+  import: common-rts-options
+  type: exitcode-stdio-1.0
+  main-is: Memcached.hs
+  hs-source-dirs: test
+  build-depends:
+    base,
+    bytestring,
+    cache-effectful,
+    effectful-core,
+    memcache,
     tasty,
     tasty-hunit,
