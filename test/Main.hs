@@ -11,7 +11,7 @@ import qualified Utils as U
 import Effectful.Cache
 
 main :: IO ()
-main = defaultMain $ testGroup "effectful-cache"
+main = defaultMain $ testGroup "cache-effectful"
   [ testCase "Insert & Lookup" $ testInsertAndLookup =<< initIntCache
   , testCase "Listing keys" $ testListKeys =<< initIntCache
   , testCase "Deleting keys" $ testDeleteKeys =<< initIntCache
