@@ -4,10 +4,9 @@ module Utils
   , assertFailure
   ) where
 
+import Effectful
 import GHC.Stack
 import qualified Test.Tasty.HUnit as T
-
-import Effectful
 
 assertBool :: (HasCallStack, IOE :> es) => String -> Bool -> Eff es ()
 assertBool msg p = liftIO $ T.assertBool msg p

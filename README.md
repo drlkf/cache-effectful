@@ -1,4 +1,4 @@
-# effectful-cache [![CI-badge][CI-badge]][CI-url]
+# cache-effectful
 
 A `Cache` effect for the [`effectful`][effectful] ecosystem.
 
@@ -34,7 +34,5 @@ runCacheIO (cache :: Data.Cache Int Int)
 
 See the [tests][tests] to see an example use.
 
-[effectful]: https://github.com/haskell-effectful/effectful
-[tests]: https://github.com/haskell-effectful/effectful-cache/blob/main/effectful-cache/test/Main.hs
-[CI-badge]: https://img.shields.io/github/workflow/status/haskell-effectful/effectful-cache/CI?style=flat-square
-[CI-url]: https://github.com/haskell-effectful/effectful-cache/actions
+[effectful]: https://haskell-effectful.github.io
+[tests]: https://github.com/haskell-effectful/cache-effectful/blob/main/cache-effectful/test/Main.hs
