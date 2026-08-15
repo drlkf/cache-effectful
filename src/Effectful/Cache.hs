@@ -3,20 +3,22 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE TypeFamilies #-}
-{-|
-  Module      : Effectful.Cache
-  Copyright   : © Hécate Moonlight, 2021
-  License     : MIT
-  Maintainer  : hecate@glitchbra.in
-  Stability   : stable
 
-  An effect wrapper around 'Data.Cache' for the Effectful ecosystem
--}
+-- |
+--   Module      : Effectful.Cache
+--   Copyright   : © Hécate Moonlight, 2021
+--   License     : MIT
+--   Maintainer  : hecate@glitchbra.in
+--   Stability   : stable
+--
+--   An effect wrapper around 'Data.Cache' for the Effectful ecosystem
 module Effectful.Cache
   ( -- * The /Cache/ effect
-    Cache(..)
+    Cache (..)
+
     -- * Handlers
   , runCacheIO
+
     -- * Cache operations
   , insert
   , lookup
@@ -26,12 +28,12 @@ module Effectful.Cache
   ) where
 
 import Control.Monad.IO.Class
+import qualified Data.Cache as C
 import Data.Hashable
 import Data.Kind
-import Prelude hiding (lookup)
-import qualified Data.Cache as C
 import Effectful
 import Effectful.Dispatch.Dynamic (interpret, send)
+import Prelude hiding (lookup)
 
 -- | Operations on a cache
 --
@@ -45,7 +47,7 @@ import Effectful.Dispatch.Dynamic (interpret, send)
 data Cache k v :: Effect where
   Insert :: (Eq k, Hashable k) => k -> v -> Cache k v m ()
   Lookup :: (Eq k, Hashable k) => k -> Cache k v m (Maybe v)
-  Keys   :: Cache k v m [k]
+  Keys :: Cache k v m [k]
   Delete :: (Eq k, Hashable k) => k -> Cache k v m ()
   FilterWithKey :: (Eq k, Hashable k) => (k -> v -> Bool) -> Cache k v m ()
 
@@ -54,28 +56,30 @@ data Cache k v :: Effect where
 type instance DispatchOf (Cache k v) = 'Dynamic
 
 -- | The default IO handler
--- 
+--
 -- @since 0.0.1.0
-runCacheIO :: forall (k :: Type) (v :: Type) (es :: [Effect]) (a :: Type)
-            . (Hashable k, IOE :> es)
-           => C.Cache k v -- ^ 
-           -> Eff (Cache k v : es) a -- ^ 
-           -> Eff es a
+runCacheIO
+  :: forall (k :: Type) (v :: Type) (es :: [Effect]) (a :: Type)
+   . (Hashable k, IOE :> es)
+  => C.Cache k v
+  -> Eff (Cache k v : es) a
+  -> Eff es a
 runCacheIO cache = interpret $ \_ -> \case
-  Insert key value  -> liftIO $ C.insert cache key value
-  Lookup key        -> liftIO $ C.lookup cache key
-  Keys              -> liftIO $ C.keys cache
-  Delete key        -> liftIO $ C.delete cache key
+  Insert key value -> liftIO $ C.insert cache key value
+  Lookup key -> liftIO $ C.lookup cache key
+  Keys -> liftIO $ C.keys cache
+  Delete key -> liftIO $ C.delete cache key
   FilterWithKey fun -> liftIO $ C.filterWithKey fun cache
 
 -- | Insert an item in the cache, using the default expiration value of the cache.
 --
 -- @since 0.0.1.0
-insert :: forall (k :: Type) (v :: Type) (es :: [Effect])
-        . (Hashable k, Cache k v :> es)
-       => k -- ^ 
-       -> v -- ^ 
-       -> Eff es ()
+insert
+  :: forall (k :: Type) (v :: Type) (es :: [Effect])
+   . (Hashable k, Cache k v :> es)
+  => k
+  -> v
+  -> Eff es ()
 insert key value = send $ Insert key value
 
 -- | Lookup an item with the given key, and delete it if it is expired.
@@ -84,10 +88,11 @@ insert key value = send $ Insert key value
 -- The function will eagerly delete the item from the cache if it is expired.
 --
 -- @since 0.0.1.0
-lookup :: forall (k :: Type) (v :: Type) (es :: [Effect])
-        . (Hashable k, Cache k v :> es)
-       => k -- ^ 
-       -> Eff es (Maybe v)
+lookup
+  :: forall (k :: Type) (v :: Type) (es :: [Effect])
+   . (Hashable k, Cache k v :> es)
+  => k
+  -> Eff es (Maybe v)
 lookup key = send $ Lookup key
 
 -- | List all the keys of the cache.
@@ -103,9 +108,10 @@ lookup key = send $ Lookup key
 -- >   keys @Int @Int -- [2,3,4,5]
 --
 -- @since 0.0.1.0
-keys :: forall (k :: Type) (v :: Type) (es :: [Effect])
-      . (Cache k v :> es)
-     => Eff es [k]
+keys
+  :: forall (k :: Type) (v :: Type) (es :: [Effect])
+   . Cache k v :> es
+  => Eff es [k]
 keys = send @(Cache k v) Keys
 
 -- | Delete the provided key from the cache it is present.
@@ -123,10 +129,11 @@ keys = send @(Cache k v) Keys
 -- >   keys @Int @Int -- [2,4]
 --
 -- @since 0.0.1.0
-delete :: forall (k :: Type) (v :: Type) (es :: [Effect])
-        . (Hashable k, Cache k v :> es)
-       => k -- ^ 
-       -> Eff es ()
+delete
+  :: forall (k :: Type) (v :: Type) (es :: [Effect])
+   . (Hashable k, Cache k v :> es)
+  => k
+  -> Eff es ()
 delete key = send @(Cache k v) $ Delete key
 
 -- | Keeps elements that satisfy the predicate (used for cache invalidation).
@@ -145,9 +152,9 @@ delete key = send @(Cache k v) $ Delete key
 -- >   keys @Int @Int -- [2,4,5]
 --
 -- @since 0.0.1.0
-filterWithKey :: forall (k :: Type) (v :: Type) (es :: [Effect])
-               . (Hashable k, Cache k v :> es)
-              => (k -> v -> Bool) -- ^ 
-              -> Eff es ()
+filterWithKey
+  :: forall (k :: Type) (v :: Type) (es :: [Effect])
+   . (Hashable k, Cache k v :> es)
+  => (k -> v -> Bool)
+  -> Eff es ()
 filterWithKey fun = send $ FilterWithKey fun
-

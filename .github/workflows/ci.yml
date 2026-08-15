@@ -18,8 +18,6 @@ jobs:
         with:
           cabal-file: cache-effectful.cabal
           ubuntu-version: 'latest'
-          macos-version: 'latest'
-          windows-version: 'latest'
           version: 0.1.9.1
   build:
     name: "${{ matrix.ghc }} on ${{ matrix.os }}"
@@ -29,7 +27,7 @@ jobs:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout base repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Haskell
         id: setup-haskell
@@ -39,10 +37,10 @@ jobs:
           cabal-version: "latest"
 
       - name: Freeze
-        run: cabal freeze --project-file=cabal.release.project
+        run: cabal freeze
 
       - name: Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-${{ hashFiles('**/plan.json') }}
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
