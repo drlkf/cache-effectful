@@ -29,6 +29,7 @@ module Effectful.Cache
 
 import Control.Monad.IO.Class
 import qualified Data.Cache as C
+import Data.Foldable (foldr')
 import Data.Hashable
 import Data.Kind
 import Effectful
@@ -47,7 +48,7 @@ import Prelude hiding (lookup)
 data Cache k v :: Effect where
   Insert :: (Eq k, Hashable k) => k -> v -> Cache k v m ()
   Lookup :: (Eq k, Hashable k) => k -> Cache k v m (Maybe v)
-  Keys :: Cache k v m [k]
+  Keys :: (Applicative t, Monoid (t k), Foldable t) => Cache k v m (t k)
   Delete :: (Eq k, Hashable k) => k -> Cache k v m ()
   FilterWithKey :: (Eq k, Hashable k) => (k -> v -> Bool) -> Cache k v m ()
 
@@ -67,7 +68,7 @@ runCacheIO
 runCacheIO cache = interpret $ \_ -> \case
   Insert key value -> liftIO $ C.insert cache key value
   Lookup key -> liftIO $ C.lookup cache key
-  Keys -> liftIO $ C.keys cache
+  Keys -> foldr' mappend mempty . fmap pure <$> liftIO (C.keys cache)
   Delete key -> liftIO $ C.delete cache key
   FilterWithKey fun -> liftIO $ C.filterWithKey fun cache
 
