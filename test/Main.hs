@@ -4,12 +4,12 @@ module Main where
 
 import qualified Data.Cache as C
 import Effectful
+import Effectful.Cache
 import Test.Tasty
 import Test.Tasty.HUnit
-import Prelude hiding (lookup)
-
-import Effectful.Cache
 import qualified Utils as U
+import qualified Xdg
+import Prelude hiding (lookup)
 
 main :: IO ()
 main =
@@ -20,6 +20,7 @@ main =
       , testCase "Listing keys" $ testListKeys =<< initIntCache
       , testCase "Deleting keys" $ testDeleteKeys =<< initIntCache
       , testCase "Filter with key" $ testFilterWithKey =<< initIntCache
+      , Xdg.tests
       ]
 
 initStringCache :: IO (C.Cache String String)

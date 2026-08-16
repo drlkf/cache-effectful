@@ -59,11 +59,19 @@ library
   import: common-extensions
   import: common-ghc-options
   hs-source-dirs: src
-  exposed-modules: Effectful.Cache
+  exposed-modules:
+    Effectful.Cache,
+    Effectful.Cache.Xdg,
   build-depends:
     base <4.23,
+    bytestring,
     cache >=0.1.3 && <0.2,
+    cereal,
+    directory,
+    effectful,
     effectful-core >=2.6 && <2.7,
+    extra,
+    filepath,
     hashable >=1.5.1 && <1.6,
 
 test-suite cache-effectful-test
@@ -72,13 +80,21 @@ test-suite cache-effectful-test
   import: common-rts-options
   type: exitcode-stdio-1.0
   main-is: Main.hs
-  other-modules: Utils
+  other-modules:
+    Utils,
+    Xdg,
   hs-source-dirs: test
   build-depends:
     base,
+    bytestring,
     cache,
     cache-effectful,
+    cereal,
+    directory,
+    effectful,
     effectful-core,
+    filepath,
     hashable,
     tasty >=1.5.4 && <1.6,
     tasty-hunit >=0.10.2 && <0.11,
+    temporary,
